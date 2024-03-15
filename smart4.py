@@ -28,8 +28,8 @@ from base import *
 MINIMAX = False  # Set to False to use iterative deepening
 LEVEL = 6  # Depth limit for both iterative deepening and minimax
 
-PLAYER = np.random.choice([True, False])
-AI = False if PLAYER else True
+PLAYER = 0
+AI = 1
 
 EMPTY = 0  # Represents an empty cell on the game board
 PLAYER_PIECE = 1  # Represents the player's game piece
@@ -248,29 +248,34 @@ def depth_limited_search(
         return column, value
 
 
+def pseudo_best_first(board):
+    """
+    AI logic that selects the move with the highest immediate gain.
+    """
+    valid_locations = get_valid_locations(board)
+    best_col = None
+    best_score = -1  # Initialize with a negative score
+    for col in valid_locations:
+        row = get_next_open_row(board, col)
+        temp_board = board.copy()
+        drop_piece(temp_board, row, col, AI_PIECE)
+        score = score_position(temp_board, AI_PIECE)
+        if score > best_score:
+            best_score = score
+            best_col = col
+    return best_col
+
+
+# Add any new logic here to handle the AI mode
+# return the best move and the corresponding score for that move (move is for pruning)
+
+
 def get_valid_locations(board):
     valid_locations = []
     for col in range(COLUMN_COUNT):
         if is_valid_location(board, col):
             valid_locations.append(col)
     return valid_locations
-
-
-def pick_best_move(board, piece):
-
-    valid_locations = get_valid_locations(board)
-    best_score = -10000
-    best_col = random.choice(valid_locations)
-    for col in valid_locations:
-        row = get_next_open_row(board, col)
-        temp_board = board.copy()
-        drop_piece(temp_board, row, col, piece)
-        score = score_position(temp_board, piece)
-        if score > best_score:
-            best_score = score
-            best_col = col
-
-    return best_col
 
 
 def draw_board(board):
@@ -380,13 +385,13 @@ while not game_over:
     # # Ask for Player 2 Input
     if turn == AI and not game_over:
 
-        # col = random.randint(0, COLUMN_COUNT-1)
-        # col = pick_best_move(board, AI_PIECE)
-        col, search_score = (
-            minimax(board, LEVEL, -math.inf, math.inf, True)
-            if MINIMAX
-            else depth_limited_search(board, LEVEL, -math.inf, math.inf, True)
-        )
+        if MINIMAX:
+            col, search_score = minimax(board, LEVEL, -math.inf, math.inf, True)
+
+        else:
+            # col = iterative_deepening(board, LEVEL)
+            # col = random.randint(0, COLUMN_COUNT-1)
+            col = pseudo_best_first(board)
 
         if is_valid_location(board, col):
             # pygame.time.wait(500)
