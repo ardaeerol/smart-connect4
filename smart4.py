@@ -4,6 +4,9 @@ import random
 import pygame
 from base import *
 
+MINIMAX = 0
+DEEPENING = 1
+
 PLAYER = 0
 AI = 1
 
@@ -80,24 +83,105 @@ def is_terminal_node(board):
 def minimax(board, depth, alpha, beta, maximizingPlayer):
     valid_locations = get_valid_locations(board)
     is_terminal = is_terminal_node(board)
+
     if depth == 0 or is_terminal:
+        if is_terminal:
+            if winning_move(board, AI_PIECE):
+                return (None, 100000000000000)  # High positive score for AI win
+            elif winning_move(board, PLAYER_PIECE):
+                return (
+                    None,
+                    -1000000000000,
+                )  # High negative score for player win (fixed typo)
+            else:
+                return (None, 0)  # Game is a draw
+        else:
+            return (
+                None,
+                score_position(board, AI_PIECE),
+            )  # Evaluate current position if depth limit is reached
+
+    if maximizingPlayer:
+        value = -math.inf
+        column = random.choice(valid_locations)
+
+        for col in valid_locations:
+            row = get_next_open_row(board, col)
+            if row == -1:
+                continue  # Column is full, skip
+            b_copy = board.copy()
+            drop_piece(b_copy, row, col, AI_PIECE)
+            new_score = minimax(b_copy, depth - 1, alpha, beta, False)[1]
+            if new_score > value:
+                value = new_score
+                column = col
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break  # Beta cutoff
+        return column, value
+
+    else:  # Minimizing player
+        value = math.inf
+        column = random.choice(valid_locations)
+
+        for col in valid_locations:
+            row = get_next_open_row(board, col)
+            if row == -1:
+                continue  # Column is full, skip
+            b_copy = board.copy()
+            drop_piece(b_copy, row, col, PLAYER_PIECE)
+            new_score = minimax(b_copy, depth - 1, alpha, beta, True)[1]
+            if new_score < value:
+                value = new_score
+                column = col
+            beta = min(beta, value)
+            if alpha >= beta:
+                break  # Alpha cutoff
+        return column, value
+
+
+def iterative_deepening(board, max_depth):
+    best_move = None
+    for depth_limit in range(1, max_depth + 1):
+        # Perform depth-limited search with alpha-beta pruning
+        move, _ = depth_limited_search(board, depth_limit)
+        if move is not None:
+            best_move = move
+    return best_move
+
+
+def depth_limited_search(
+    board, depth_limit, alpha=-math.inf, beta=math.inf, maximizingPlayer=True
+):
+    valid_locations = get_valid_locations(board)
+    is_terminal = is_terminal_node(board)
+
+    if depth_limit == 0 or is_terminal:
         if is_terminal:
             if winning_move(board, AI_PIECE):
                 return (None, 100000000000000)
             elif winning_move(board, PLAYER_PIECE):
                 return (None, -10000000000000)
-            else:  # Game is over, no more valid moves
+            else:
                 return (None, 0)
-        else:  # Depth is zero
-            return (None, score_position(board, AI_PIECE))
+        else:
+            return (
+                None,
+                score_position(board, AI_PIECE),
+            )  # Evaluation function for non-terminal nodes
+
     if maximizingPlayer:
         value = -math.inf
-        column = random.choice(valid_locations)
+        column = None
         for col in valid_locations:
             row = get_next_open_row(board, col)
+            if row == -1:
+                continue  # Column is full, skip
             b_copy = board.copy()
             drop_piece(b_copy, row, col, AI_PIECE)
-            new_score = minimax(b_copy, depth - 1, alpha, beta, False)[1]
+            _, new_score = depth_limited_search(
+                b_copy, depth_limit - 1, alpha, beta, False
+            )
             if new_score > value:
                 value = new_score
                 column = col
@@ -108,12 +192,16 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 
     else:  # Minimizing player
         value = math.inf
-        column = random.choice(valid_locations)
+        column = None
         for col in valid_locations:
             row = get_next_open_row(board, col)
+            if row == -1:
+                continue  # Column is full, skip
             b_copy = board.copy()
             drop_piece(b_copy, row, col, PLAYER_PIECE)
-            new_score = minimax(b_copy, depth - 1, alpha, beta, True)[1]
+            _, new_score = depth_limited_search(
+                b_copy, depth_limit - 1, alpha, beta, True
+            )
             if new_score < value:
                 value = new_score
                 column = col
@@ -257,7 +345,11 @@ while not game_over:
 
         # col = random.randint(0, COLUMN_COUNT-1)
         # col = pick_best_move(board, AI_PIECE)
-        col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
+        col, search_score = (
+            depth_limited_search(board, 5, -math.inf, math.inf, True)
+            if DEEPENING
+            else minimax(board, 5, -math.inf, math.inf, True)
+        )
 
         if is_valid_location(board, col):
             # pygame.time.wait(500)
