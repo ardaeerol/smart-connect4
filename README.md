@@ -15,7 +15,7 @@ To play the game, follow these steps:
 
 Here are some references that were used to develop this game:
 
-- [Game Solver Blog](http://blog.gamesolver.org/)
 - [AIMA Python](https://github.com/aimacode/aima-python)
+- [Game Solver Blog](http://blog.gamesolver.org/)
 - [Connect4-Python by KeithGalli](https://github.com/KeithGalli/Connect4-Python)
 - [Creating the Perfect Connect Four AI Bot](https://towardsdatascience.com/creating-the-perfect-connect-four-ai-bot-c165115557b0)
