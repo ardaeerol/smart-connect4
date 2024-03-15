@@ -12,22 +12,30 @@
     move.
 """
 
+"""
+    Set LEVEL parameter between 4 and 7 included to control the depth of the search tree. The higher the
+    value of LEVEL, the more time it takes to make a move. The default value is 5. Recommended values are
+    6 for hard mode and 4 for easy mode.
+
+"""
+
 import sys
 import math
 import random
 import pygame
 from base import *
 
-MINIMAX = True  # Set to False to use iterative deepening
+MINIMAX = False  # Set to False to use iterative deepening
+LEVEL = 6  # Depth limit for both iterative deepening and minimax
 
-PLAYER = 0
-AI = 1
+PLAYER = np.random.choice([True, False])
+AI = False if PLAYER else True
 
-EMPTY = 0
-PLAYER_PIECE = 1
-AI_PIECE = 2
+EMPTY = 0  # Represents an empty cell on the game board
+PLAYER_PIECE = 1  # Represents the player's game piece
+AI_PIECE = 2  # Represents the AI's game piece
 
-WINDOW_LENGTH = 4
+WINDOW_LENGTH = 4  # Number of pieces in a row, column, or diagonal required to win
 
 
 def evaluate_window(window, piece):
@@ -375,9 +383,9 @@ while not game_over:
         # col = random.randint(0, COLUMN_COUNT-1)
         # col = pick_best_move(board, AI_PIECE)
         col, search_score = (
-            minimax(board, 5, -math.inf, math.inf, True)
+            minimax(board, LEVEL, -math.inf, math.inf, True)
             if MINIMAX
-            else depth_limited_search(board, 5, -math.inf, math.inf, True)
+            else depth_limited_search(board, LEVEL, -math.inf, math.inf, True)
         )
 
         if is_valid_location(board, col):

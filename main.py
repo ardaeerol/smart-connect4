@@ -8,7 +8,7 @@ pygame.init()
 # Set up the screen
 WIDTH, HEIGHT = 400, 300
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Connect 4 Game Modes")
+pygame.display.set_caption("Game Modes")
 
 # Colors
 WHITE = (255, 255, 255)
