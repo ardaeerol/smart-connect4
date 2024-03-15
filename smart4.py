@@ -1,11 +1,24 @@
+"""
+    The code provided is a Python implementation of a Connect 4 game with an AI opponent using the
+    minimax algorithm with alpha-beta pruning and iterative deepening for decision making.
+    
+    :param window: The `window` parameter in the code represents a list of 4 elements (pieces) in a row,
+    column, or diagonal on the game board. The `evaluate_window` function takes this window as input and
+    calculates a score based on the number and types of pieces in that window
+    :param piece: Piece is a variable representing a player's game piece in the Connect 4 game. In this
+    implementation, the piece can be either PLAYER_PIECE (1) or AI_PIECE (2). These values are used to
+    identify which player's piece is placed in a particular cell on the game
+    :return: The code returns the best column to place a piece in and the corresponding score for that
+    move.
+"""
+
 import sys
 import math
 import random
 import pygame
 from base import *
 
-MINIMAX = 0
-DEEPENING = 1
+MINIMAX = True  # Set to False to use iterative deepening
 
 PLAYER = 0
 AI = 1
@@ -18,6 +31,9 @@ WINDOW_LENGTH = 4
 
 
 def evaluate_window(window, piece):
+    """
+    Evaluate the score of a window (sequence of cells) for a given piece.
+    """
     score = 0
     opp_piece = PLAYER_PIECE
     if piece == PLAYER_PIECE:
@@ -37,6 +53,9 @@ def evaluate_window(window, piece):
 
 
 def score_position(board, piece):
+    """
+    Evaluate the score of the board position for a given piece.
+    """
     score = 0
 
     ## Score center column
@@ -73,6 +92,9 @@ def score_position(board, piece):
 
 
 def is_terminal_node(board):
+    """
+    Check if the current board position is a terminal node (end of game).
+    """
     return (
         winning_move(board, PLAYER_PIECE)
         or winning_move(board, AI_PIECE)
@@ -81,6 +103,9 @@ def is_terminal_node(board):
 
 
 def minimax(board, depth, alpha, beta, maximizingPlayer):
+    """
+    Minimax algorithm with alpha-beta pruning for selecting the best move.
+    """
     valid_locations = get_valid_locations(board)
     is_terminal = is_terminal_node(board)
 
@@ -141,6 +166,9 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
 
 
 def iterative_deepening(board, max_depth):
+    """
+    Iterative Deepening algorithm for selecting the best move.
+    """
     best_move = None
     for depth_limit in range(1, max_depth + 1):
         # Perform depth-limited search with alpha-beta pruning
@@ -150,6 +178,7 @@ def iterative_deepening(board, max_depth):
     return best_move
 
 
+# Depth-limited search algorithm with alpha-beta pruning for selecting the best move.
 def depth_limited_search(
     board, depth_limit, alpha=-math.inf, beta=math.inf, maximizingPlayer=True
 ):
@@ -346,9 +375,9 @@ while not game_over:
         # col = random.randint(0, COLUMN_COUNT-1)
         # col = pick_best_move(board, AI_PIECE)
         col, search_score = (
-            depth_limited_search(board, 5, -math.inf, math.inf, True)
-            if DEEPENING
-            else minimax(board, 5, -math.inf, math.inf, True)
+            minimax(board, 5, -math.inf, math.inf, True)
+            if MINIMAX
+            else depth_limited_search(board, 5, -math.inf, math.inf, True)
         )
 
         if is_valid_location(board, col):
