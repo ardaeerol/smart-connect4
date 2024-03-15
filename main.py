@@ -51,12 +51,12 @@ def main_menu():
                 if ai_button.collidepoint(mouse_pos):
                     # Start AI mode
                     pygame.quit()  # Shutdown the main menu
-                    subprocess.run(["python", "Smart_Connect4.py"])
+                    subprocess.run(["python", "smart4.py"])
                     sys.exit()
                 elif two_player_button.collidepoint(mouse_pos):
                     # Start 2-player mode
                     pygame.quit()  # Shutdown the main menu
-                    subprocess.run(["python", "Connect4.py"])
+                    subprocess.run(["python", "connect4.py"])
                     sys.exit()
 
 
