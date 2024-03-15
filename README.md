@@ -1,6 +1,6 @@
 # Smart Connect4 Game
 
-This is a smart Connect4 game implemented in Python. It uses artificial intelligence algorithms to play against the user.
+Smart Connect4 game implemented in Python. It uses artificial intelligence (AI) algorithms to play against the user.
 
 ## How to Play
 
